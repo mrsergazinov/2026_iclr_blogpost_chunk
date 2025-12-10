@@ -32,9 +32,10 @@ for pr in $prs; do
     echo "✅ Merging PR #$pr"
     
     # 4. Fetch head branch (works even if from fork)
-    fork_owner=$(gh api repos/$OWNER/$REPO/pulls/$pr --jq '.head.repo.owner.login')
-    fork_repo=$(gh api repos/$OWNER/$REPO/pulls/$pr --jq '.head.repo.name')
-    fork_ref=$(gh api repos/$OWNER/$REPO/pulls/$pr --jq '.head.ref')
+    pr_info=$(gh api repos/$OWNER/$REPO/pulls/$pr --jq '{owner: .head.repo.owner.login, repo: .head.repo.name, ref: .head.ref}')
+    fork_owner=$(echo "$pr_info" | jq -r '.owner')
+    fork_repo=$(echo "$pr_info" | jq -r '.repo')
+    fork_ref=$(echo "$pr_info" | jq -r '.ref')
 
     # Clean up any existing local branch reference
     git branch -D "$fork_owner-$fork_ref" 2>/dev/null || true
